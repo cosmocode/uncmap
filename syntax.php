@@ -56,7 +56,12 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
      * connect to the renderer.
      */
     function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\[\[[a-z]{1}\:[\\\/]{1}.+?\]\]',$mode,'plugin_uncmap');
+        $keys = array_keys($this->pathes);
+        $letters = '';
+        foreach ($keys as $letter) {
+            $letters .= $letter;
+        }
+        $this->Lexer->addSpecialPattern('\[\[['.$letters.']{1}\:[\\\/]{1}.+?\]\]',$mode,'plugin_uncmap');
     }
 
     /**
