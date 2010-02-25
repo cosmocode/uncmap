@@ -35,6 +35,7 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
         if ($fs !== null && file_exists($fs)) {
 
             $fs = str_replace('\\','/',$fs);
+            $fs = rtrim($fs,'/');
             if (substr($fs,-1) == '/') {
                 $fs = substr($fs,0,-1);
             }
@@ -56,11 +57,7 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
      * connect to the renderer.
      */
     function connectTo($mode) {
-        $keys = array_keys($this->pathes);
-        $letters = '';
-        foreach ($keys as $letter) {
-            $letters .= $letter;
-        }
+        $letters = implode('',array_keys($this->pathes));
         $this->Lexer->addSpecialPattern('\[\[['.$letters.']{1}\:[\\\/]{1}.+?\]\]',$mode,'plugin_uncmap');
     }
 
