@@ -95,11 +95,4 @@ class general_plugin_uncmap_test extends DokuWikiTest {
     }
 
 }
-/*
- * === Facts and Figures ===
-
-  * a [[:facts:figures|Punkt1]]
-  * b [[facts:figures|Punkt2]]
-  * c Punkt3'
- */
 ?>
