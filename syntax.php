@@ -102,12 +102,12 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
     /**
      * displays the link.
      */
-    function render($mode, &$R, $data) {
+    function render($mode, Doku_Renderer $renderer, $data) {
         if($mode == 'xhtml'){
 
             // check if there is a link and give it to the renderer
             if (!empty($data[0])) {
-                $this->windowssharelink($R, $data[0], $this->checkLink($data[0]));
+                $this->windowssharelink($renderer, $data[0], $this->checkLink($data[0]));
             }
         }
         return false;
