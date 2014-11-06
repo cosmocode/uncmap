@@ -51,9 +51,3 @@ class mapping_plugin_uncmap_test extends uncmapDokuWikiTest {
     }
 
 }
-
-
-
-
-
-?>

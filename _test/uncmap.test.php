@@ -35,4 +35,3 @@ class general_plugin_uncmap_test extends DokuWikiTest {
     }
 
 }
-?>

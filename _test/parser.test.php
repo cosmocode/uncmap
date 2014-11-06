@@ -35,7 +35,3 @@ class parser_plugin_uncmap_test extends uncmapDokuWikiTest {
     }
 
 }
-
-
-
-?>
