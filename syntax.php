@@ -58,7 +58,9 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
      */
     function connectTo($mode) {
         $letters = implode('',array_keys($this->pathes));
-        $this->Lexer->addSpecialPattern('\[\[['.$letters.']{1}\:[\\\/]{1}.+?\]\]',$mode,'plugin_uncmap');
+        if($letters !== '') {
+            $this->Lexer->addSpecialPattern('\[\[[' . $letters . ']{1}\:[\\\/]{1}.+?\]\]', $mode, 'plugin_uncmap');
+        }
     }
 
     /**
