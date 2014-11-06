@@ -5,8 +5,9 @@
  * @group plugin_uncmap
  * @group plugins
  */
+require_once 'uncmap.inc.php';
 
-class mapping_plugin_uncmap_test extends DokuWikiTest {
+class mapping_plugin_uncmap_test extends uncmapDokuWikiTest {
 
     protected $pluginsEnabled = array('uncmap');
 
@@ -28,7 +29,7 @@ class mapping_plugin_uncmap_test extends DokuWikiTest {
 
     function test_parser_mapping() {
         $parser_response = p_get_instructions('Testlink: [[z:/path/to/file]]');
-        $parser_response = flatten_array($parser_response);
+        $parser_response = $this->flatten_array($parser_response);
         $uncmap_pos = array_search("uncmap",$parser_response,true);
         $this->assertTrue($uncmap_pos !== false,'uncmap should be invoked');
         $link_pos = array_search("\\\\server1\\documents\\path\\to\\file",$parser_response,true);
@@ -37,14 +38,14 @@ class mapping_plugin_uncmap_test extends DokuWikiTest {
 
     function test_parser_no_mapping() {
         $parser_response = p_get_instructions('Testlink: [[y:/path/to/file]]');
-        $parser_response = flatten_array($parser_response);
+        $parser_response = $this->flatten_array($parser_response);
         $uncmap_pos = array_search("uncmap",$parser_response,true);
         $this->assertTrue($uncmap_pos === false,'uncmap should not be invoked');
     }
 
     function test_parser_colon() {
         $parser_response = p_get_instructions('Testlink: [[:facts:figures|Foo]]');
-        $parser_response = flatten_array($parser_response);
+        $parser_response = $this->flatten_array($parser_response);
         $uncmap_pos = array_search("uncmap",$parser_response,true);
         $this->assertTrue($uncmap_pos === false,'A link beginning with a colon should not be handled at all by this plugin.');
     }
