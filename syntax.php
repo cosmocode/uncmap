@@ -66,7 +66,7 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
     /**
      * review the given url.
      */
-    function handle($match, $state, $pos, &$handler) {
+    function handle($match, $state, $pos, Doku_Handler $handler) {
 
         // trim [[ and ]]
         $match = substr($match,2,-2);
