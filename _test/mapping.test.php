@@ -61,9 +61,8 @@ class mapping_plugin_uncmap_test extends uncmapDokuWikiTest {
         $this->assertTrue($uncmap_pos === false,'A link beginning with a colon should not be handled at all by this plugin.');
     }
 
-
     function test_output_title() {
-        global $ID, $conf;
+        global $ID;
         $ID = 'wiki:start';
         $request = new TestRequest();
         $input = array(
