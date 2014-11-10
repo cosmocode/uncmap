@@ -13,6 +13,21 @@ class parser_plugin_uncmap_test extends uncmapDokuWikiTest {
 
     protected $pluginsEnabled = array('uncmap');
 
+    function setUp(){
+        parent::setUp();
+        TestUtils::rcopy(TMP_DIR, dirname(__FILE__).'/../conf/mapping.php');
+        TestUtils::rdelete(dirname(__FILE__).'/../conf/mapping.php');
+        touch(dirname(__FILE__).'/../conf/mapping.php');
+    }
+
+    function tearDown(){
+        parent::tearDown();
+        if(file_exists(TMP_DIR.'/mapping.php')) {
+            TestUtils::rdelete(dirname(__FILE__) . '/../conf/mapping.php');
+            TestUtils::rcopy(dirname(__FILE__).'/../conf', TMP_DIR.'/mapping.php');
+        }
+    }
+
     function test_parser_colon() {
         $parser_response = p_get_instructions('Testlink: [[:facts:figures|Foo]]');
         $parser_response = $this->flatten_array($parser_response);
