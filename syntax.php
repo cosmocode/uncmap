@@ -16,30 +16,62 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
      * format is
      *   letter => path
      */
-    var $pathes;
+    var $pathes = array();
 
     /**
      * the path to the mounted fileserver.
      *
      * this is used for linkchecking. if the path is null the linkcheck is disabled.
      */
-    var $fileserver = null;
+    var $fileserver = array(0 => null);
 
     /**
      * load the mapping array.
      */
     function syntax_plugin_uncmap() {
-        $this->pathes = confToHash(dirname(__FILE__).'/conf/mapping.php');
 
-        $fs = $this->getConf('fileserver');
-        if ($fs !== null && file_exists($fs)) {
-
-            $fs = str_replace('\\','/',$fs);
-            $fs = rtrim($fs,'/');
-            if (substr($fs,-1) == '/') {
-                $fs = substr($fs,0,-1);
+        $lines = @file( dirname(__FILE__) . '/conf/mapping.php' );
+        if ( $lines ) {
+            $lines_fs = array();
+            $lines_pathes = array();
+            foreach ($lines as $line) {
+                if (preg_match('/[a-z]/',strtolower($line[0])) == 1) {
+                    $letter = $line[0];
+                    $line = substr($line,1);
+                    $line = trim($line);
+                    if (empty($line)) continue;
+                    $delim = strpos($line,' ');
+                    if ($delim === false){
+                        $lines_pathes[] = implode(' ',array($letter,$line));
+                        $lines_fs[] = implode(' ',array($letter,'default'));
+                    } else {
+                        $path = substr($line,0,$delim);
+                        $fs = substr($line,$delim);
+                        $fs = trim($fs);
+                        $lines_pathes[] = implode(' ',array($letter,$path));
+                        $lines_fs[] = implode(' ',array($letter,$fs));
+                    }
+                }
             }
-            $this->fileserver = $fs;
+
+            $this->pathes = linesToHash($lines_pathes);
+            $this->fileserver[0] = $this->getConf('fileserver');
+            $this->fileserver = $this->fileserver + linesToHash($lines_fs);
+            foreach ($this->fileserver as $letter => $fs) {
+                if($fs !== null && file_exists($fs)) {
+
+                    $fs = str_replace('\\', '/', $fs);
+                    $fs = rtrim($fs, '/');
+                    if(substr($fs, -1) == '/') {
+                        $fs = substr($fs, 0, -1);
+                    }
+                    $this->fileserver[$letter] = $fs;
+                } elseif ($this->fileserver[0] === null || !file_exists($this->fileserver[0])){
+                    $this->fileserver[$letter] = null;
+                } else {
+                    $this->fileserver[$letter] = $this->fileserver[0];
+                }
+            }
         }
     }
 
@@ -77,6 +109,7 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
         // get the drive letter in lower case
         $letter = strtolower($match[0]);
         $return = array();
+        $return['letter'] = $letter;
         // if there is a mapping for the drive letter we have work to do
         if ($this->pathes[$letter]) {
             $titlepos = strpos($match,'|');
@@ -118,7 +151,7 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
                 $renderer->windowssharelink($data['url'], $data['title']);
 
                 // check if the linked file exists on the fileserver and set the class accordingly
-                $data['exists'] = $this->checkLink($data['url']);
+                $data['exists'] = $this->checkLink($data);
                 if ($data['exists'] == 1) {
                     $this->replaceLinkClass($renderer,'wikilink1');
                 } elseif ($data['exists'] == -1) {
@@ -132,13 +165,13 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
     /**
      * checks if the link exists on the server.
      */
-    function checkLink($link) {
-        if (!$this->fileserver) {
+    function checkLink($data) {
+        if (!$this->fileserver[$data['letter']]) {
             return null;
         }
 
-        $link = str_replace('\\','/',$link);
-        $path = preg_replace('/^\/\/[^\/]+/i',$this->fileserver,$link);
+        $data['url'] = str_replace('\\','/',$data['url']);
+        $path = preg_replace('/^\/\/[^\/]+/i',$this->fileserver[$data['letter']],$data['url']);
 
         return file_exists($path)?1:-1;
     }
