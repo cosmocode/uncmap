@@ -76,10 +76,17 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
 
         // get the drive letter in lower case
         $letter = strtolower($match[0]);
-
+        $return = array();
         // if there is a mapping for the drive letter we have work to do
         if ($this->pathes[$letter]) {
-
+            $titlepos = strpos($match,'|');
+            if ($titlepos !== false){
+                $title = substr($match,$titlepos+1);
+                $match = substr($match,0,$titlepos);
+                $return['title'] = $title;
+            } else {
+                $return['title'] = null;
+            }
             // get the mapping path
             $path = $this->pathes[$letter];
             $match = substr($match, 1);
@@ -94,9 +101,10 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
                 if (substr($path,-1) != '\\') $new .= '\\';
                 $new .=  substr($match,2);
             }
+            $return['url'] = $new;
         }
 
-        return array($new);
+        return $return;
     }
 
     /**
@@ -106,8 +114,9 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
         if($mode == 'xhtml'){
 
             // check if there is a link and give it to the renderer
-            if (!empty($data[0])) {
-                $this->windowssharelink($renderer, $data[0], $this->checkLink($data[0]));
+            if (!empty($data['url'])) {
+                $data['exists'] = $this->checkLink($data['url']);
+                $this->windowssharelink($renderer, $data['url'], $data['exists']);
             }
         }
         return false;
