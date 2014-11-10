@@ -160,42 +160,4 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
         $ourdoc .= $link;
     }
 
-
-
-    /**
-     * from inc/renderer/xhtml.php
-     */
-    function windowssharelink(&$R, $url, $exists = null) {
-        global $conf;
-        global $lang;
-
-        //simple setup
-        $link['target'] = $conf['target']['windows'];
-        $link['pre']    = '';
-        $link['suf']   = '';
-        $link['style']  = '';
-
-        $link['name'] = $R->_getLinkTitle(null, $url, $isImage);
-        if ( !$isImage ) {
-            $link['class'] = 'windows';
-        } else {
-            $link['class'] = 'media';
-        }
-        if ($exists == 1) {
-            $link['class'] .= ' wikilink1';
-        } elseif ($exists == -1) {
-            $link['class'] .= ' wikilink2';
-        }
-
-        $link['title'] = $R->_xmlEntities($url);
-        $url = str_replace('\\','/',$url);
-        $url = 'file:///'.$url;
-        $link['url'] = $url;
-
-        //output formatted
-        $R->doc .= $R->_formatLink($link);
-    }
-
-
 }
-
