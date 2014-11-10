@@ -39,12 +39,12 @@ class mapping_plugin_uncmap_test extends uncmapDokuWikiTest {
 
     function test_parser_mapping_with_title() {
         $parser_response = p_get_instructions('Testlink: [[z:/path/to/file|some title]]');
-        print_r($parser_response);
         $parser_response = $this->flatten_array($parser_response);
         $uncmap_pos = array_search("uncmap",$parser_response,true);
         $this->assertTrue($uncmap_pos !== false,'uncmap should be invoked');
         $link_pos = array_search("\\\\server1\\documents\\path\\to\\file",$parser_response,true);
         $this->assertTrue($link_pos !== false,'the link is not mapped correctly');
+        $this->assertTrue($parser_response[$link_pos-1] == 'some title','title not recognized correctly');
     }
 
     function test_parser_no_mapping() {
@@ -59,6 +59,29 @@ class mapping_plugin_uncmap_test extends uncmapDokuWikiTest {
         $parser_response = $this->flatten_array($parser_response);
         $uncmap_pos = array_search("uncmap",$parser_response,true);
         $this->assertTrue($uncmap_pos === false,'A link beginning with a colon should not be handled at all by this plugin.');
+    }
+
+
+    function test_output_title() {
+        global $ID, $conf;
+        $ID = 'wiki:start';
+        $request = new TestRequest();
+        $input = array(
+            'id' => 'wiki:start'
+        );
+        saveWikiText('wiki:start', 'Testlink: [[z:/path/to/file|some title]]', 'Test initialization');
+        $response = $request->post($input);
+        $this->assertTrue(
+            strpos($response->getContent(), 'Testlink') !== false,
+            'This tests the test and should always succeed.'
+        );
+        $this->assertTrue(
+            strpos($response->getContent(), '>some title</a>') !== false
+        );
+
+        $this->assertTrue(
+            strpos($response->getContent(), 'href="file://///server1/documents/path/to/file"') !== false
+        );
     }
 
 }
