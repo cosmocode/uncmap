@@ -115,8 +115,15 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
 
             // check if there is a link and give it to the renderer
             if (!empty($data['url'])) {
+                $renderer->windowssharelink($data['url'], $data['title']);
+
+                // check if the linked file exists on the fileserver and set the class accordingly
                 $data['exists'] = $this->checkLink($data['url']);
-                $this->windowssharelink($renderer, $data['url'], $data['exists']);
+                if ($data['exists'] == 1) {
+                    $this->replaceLinkClass($renderer,'wikilink1');
+                } elseif ($data['exists'] == -1) {
+                    $this->replaceLinkClass($renderer,'wikilink2');
+                }
             }
         }
         return false;
@@ -135,6 +142,25 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
 
         return file_exists($path)?1:-1;
     }
+
+    /**
+     * @param Doku_Renderer $renderer:
+     * @param $newClass: replace the class of the windowssharelink with this value
+     */
+    function replaceLinkClass(Doku_Renderer $renderer, $newClass){
+        $ourdoc = & $renderer->doc;
+
+        //detach the link from doc
+        $linkoffset = strrpos($ourdoc,'<a ');
+        $link = substr($ourdoc, $linkoffset);
+
+        $ourdoc = preg_replace('/'. preg_quote($link, '/') . '$/', '', $ourdoc);
+        $link = preg_replace('/class=\"(windows|media)\"/','class="' . $newClass . '"',$link);
+
+        $ourdoc .= $link;
+    }
+
+
 
     /**
      * from inc/renderer/xhtml.php
@@ -161,7 +187,6 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
             $link['class'] .= ' wikilink2';
         }
 
-
         $link['title'] = $R->_xmlEntities($url);
         $url = str_replace('\\','/',$url);
         $url = 'file:///'.$url;
@@ -170,5 +195,7 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
         //output formatted
         $R->doc .= $R->_formatLink($link);
     }
+
+
 }
 
