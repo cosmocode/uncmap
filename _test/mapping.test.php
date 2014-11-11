@@ -17,6 +17,12 @@ class mapping_plugin_uncmap_test extends uncmapDokuWikiTest {
         TestUtils::rdelete(dirname(__FILE__).'/../conf/mapping.php');
         touch(dirname(__FILE__).'/../conf/mapping.php');
         TestUtils::fappend(dirname(__FILE__).'/../conf/mapping.php','z           \\\\server1\\documents'.PHP_EOL);
+        TestUtils::fappend(dirname(__FILE__).'/../conf/mapping.php','x   \\\\server2\\shareTest   '.TMP_DIR.PHP_EOL);
+        TestUtils::fappend(dirname(__FILE__).'/../conf/mapping.php','k           \\\\server3\\documentsTest'.PHP_EOL);
+        mkdir(TMP_DIR.'/shareTest');
+        touch(TMP_DIR.'/shareTest/testfile.tmp');
+        mkdir(TMP_DIR.'/documentsTest');
+        touch(TMP_DIR.'/documentsTest/testdefaultfile.tmp');
     }
 
     function tearDown(){
@@ -25,6 +31,8 @@ class mapping_plugin_uncmap_test extends uncmapDokuWikiTest {
             TestUtils::rdelete(dirname(__FILE__) . '/../conf/mapping.php');
             TestUtils::rcopy(dirname(__FILE__).'/../conf', TMP_DIR.'/mapping.php');
         }
+        TestUtils::rdelete(TMP_DIR.'/shareTest');
+        TestUtils::rdelete(TMP_DIR.'/documentsTest');
     }
 
 
@@ -75,11 +83,87 @@ class mapping_plugin_uncmap_test extends uncmapDokuWikiTest {
             'This tests the test and should always succeed.'
         );
         $this->assertTrue(
-            strpos($response->getContent(), '>some title</a>') !== false
+            strpos($response->getContent(), '>some title</a>') !== false,
+            'The title is incorrect.'
         );
-
         $this->assertTrue(
-            strpos($response->getContent(), 'href="file://///server1/documents/path/to/file"') !== false
+            strpos($response->getContent(), 'href="file:///server1/documents/path/to/file"') !== false,
+            'The url is incorrect.'
+        );
+        $this->assertTrue(
+            strpos($response->getContent(), 'class="windows"') !== false,
+            'The class for a link without local fileserver is incorrect.'
+        );
+    }
+
+    function test_output_file_exists() {
+        global $ID;
+        $ID = 'wiki:start';
+        $request = new TestRequest();
+        $input = array(
+            'id' => 'wiki:start'
+        );
+        saveWikiText('wiki:start', 'Testlink: [[x:/testfile.tmp|existing file]]', 'Test initialization');
+        $response = $request->post($input);
+        $this->assertTrue(
+            strpos($response->getContent(), 'Testlink') !== false,
+            'This tests the test and should always succeed.'
+        );
+        $this->assertTrue(
+            strpos($response->getContent(), 'class="wikilink1"') !== false,
+            'The class for an existing link is incorrect.'
+        );
+        $this->assertTrue(
+            strpos($response->getContent(), 'href="file:///server2/shareTest/testfile.tmp"') !== false,
+            'The url is incorrect.'
+        );
+    }
+
+    function test_output_file_not_exists() {
+        global $ID;
+        $ID = 'wiki:start';
+        $request = new TestRequest();
+        $input = array(
+            'id' => 'wiki:start'
+        );
+        saveWikiText('wiki:start', 'Testlink: [[x:/notestfile.tmp|not existing file]]', 'Test initialization');
+        $response = $request->post($input);
+        $this->assertTrue(
+            strpos($response->getContent(), 'Testlink') !== false,
+            'This tests the test and should always succeed.'
+        );
+        $this->assertTrue(
+            strpos($response->getContent(), 'class="wikilink2"') !== false,
+            'The class for an non-existing link is incorrect.'
+        );
+        $this->assertTrue(
+            strpos($response->getContent(), 'href="file:///server2/shareTest/notestfile.tmp"') !== false,
+            'The url is incorrect.'
+        );
+    }
+
+    function test_output_file_exists_default() {
+        global $ID, $conf;
+
+        $conf['plugin']['uncmap']['fileserver'] = TMP_DIR;
+        $ID = 'wiki:start';
+        $request = new TestRequest();
+        $input = array(
+            'id' => 'wiki:start'
+        );
+        saveWikiText('wiki:start', 'Testlink: [[k:/testdefaultfile.tmp|file exists at default fs]]', 'Test init');
+        $response = $request->post($input);
+        $this->assertTrue(
+            strpos($response->getContent(), 'Testlink') !== false,
+            'This tests the test and should always succeed.'
+        );
+        $this->assertTrue(
+            strpos($response->getContent(), 'href="file:///server3/documentsTest/testdefaultfile.tmp"') !== false,
+            'The url is incorrect.'
+        );
+        $this->assertTrue(
+            strpos($response->getContent(), 'class="wikilink1"') !== false,
+            'The class for a link that exists at the default fileserver is incorrect.'
         );
     }
 
