@@ -186,8 +186,7 @@ class syntax_plugin_uncmap extends DokuWiki_Syntax_Plugin {
         //detach the link from doc
         $linkoffset = strrpos($ourdoc,'<a ');
         $link = substr($ourdoc, $linkoffset);
-
-        $ourdoc = preg_replace('/'. preg_quote($link, '/') . '$/', '', $ourdoc);
+        $ourdoc = substr($ourdoc, 0, $linkoffset);
         $link = preg_replace('/class=\"(windows|media)\"/','class="' . $newClass . '"',$link);
 
         $ourdoc .= $link;
