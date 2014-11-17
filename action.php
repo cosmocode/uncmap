@@ -1,6 +1,5 @@
 <?php
 
-
 class action_plugin_uncmap extends DokuWiki_Action_Plugin {
 
     public function register(Doku_Event_Handler $controller) {
@@ -13,4 +12,4 @@ class action_plugin_uncmap extends DokuWiki_Action_Plugin {
             $event->data[] = $config;
         }
     }
-}//'Maps a drive letter to an UNC path'
+}
