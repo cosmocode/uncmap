@@ -1,0 +1,11 @@
+The UncMap plugin allows you to map windows drive-letters to an UNC path.
+
+Add mappings as letter server pair.
+
+An example:
+  z \\server1\documents
+
+You can optionally also add a locally mounted fileserver to look up if the file exists:
+  y \\server2\share /mnt/fileserver
+
+For more tips see the [[doku>plugin:uncmap|documentation]].
