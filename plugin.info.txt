@@ -1,7 +1,7 @@
 base    uncmap
 author  Dominik Eckelmann
 email   dokuwiki@cosmocode.de
-date    2015-02-23
+date    2015-10-05
 name    UncMap
 desc    Maps a drive letter to a UNC path
 url     http://www.dokuwiki.org/plugin:uncmap
